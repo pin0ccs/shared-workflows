@@ -1,0 +1,21 @@
+name: Shared Release Workflow
+
+on:
+  workflow_call:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Capture JWT
+        run: |
+          TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" \
+            | jq -r .value)
+
+          echo "$TOKEN" | cut -d. -f2 | base64 -d 2>/dev/null | jq .
